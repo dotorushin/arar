@@ -10,36 +10,41 @@
             width: 100%;
             height: 100vh;
             display: block;
+            touch-action: none;
         }
     </style>
 </head>
 <body>
-    <model-viewer id="ar-model" 
-        src="./your_model.glb" 
+    <model-viewer 
+        id="ar-model"
+        src="your_model.glb"
         ar 
-        ar-modes="webxr scene-viewer quick-look" 
-        camera-controls 
-        auto-rotate>
+        ar-modes="webxr scene-viewer quick-look"
+        camera-controls
+        auto-rotate
+        alt="A 3D model">
     </model-viewer>
 
     <script>
         const modelViewer = document.querySelector("#ar-model");
-
         let scale = 1;
+
         let hammer = new Hammer(modelViewer);
 
-        // 드래그(이동) 기능 추가
+        // 모델 이동 (드래그)
+        hammer.get("pan").set({ direction: Hammer.DIRECTION_ALL });
         hammer.on("pan", (event) => {
-            let dx = event.deltaX * 0.001; // X 방향 이동
-            let dy = event.deltaY * -0.001; // Y 방향 이동 (반대로 적용)
-            modelViewer.cameraOrbit = `${dx}rad ${dy}rad auto`;
+            let orbit = modelViewer.getAttribute("camera-orbit").split(" ");
+            let dx = parseFloat(orbit[0]) + event.deltaX * 0.01;
+            let dy = parseFloat(orbit[1]) - event.deltaY * 0.01;
+            modelViewer.setAttribute("camera-orbit", `${dx}rad ${dy}rad auto`);
         });
 
-        // 핀치 줌(확대/축소) 기능 추가
+        // 모델 확대/축소 (핀치 줌)
         hammer.get("pinch").set({ enable: true });
         hammer.on("pinch", (event) => {
-            scale = Math.min(Math.max(0.5, scale * event.scale), 3); // 최소 0.5배, 최대 3배
-            modelViewer.scale = `${scale} ${scale} ${scale}`;
+            scale = Math.min(Math.max(0.5, scale * event.scale), 3);
+            modelViewer.setAttribute("scale", `${scale} ${scale} ${scale}`);
         });
     </script>
 </body>
