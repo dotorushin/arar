@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Web AR with Model Viewer</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <style>
         model-viewer {
             width: 100%;
@@ -27,24 +26,12 @@
 
     <script>
         const modelViewer = document.querySelector("#ar-model");
-        let scale = 1;
 
-        let hammer = new Hammer(modelViewer);
-
-        // 모델 이동 (드래그)
-        hammer.get("pan").set({ direction: Hammer.DIRECTION_ALL });
-        hammer.on("pan", (event) => {
-            let orbit = modelViewer.getAttribute("camera-orbit").split(" ");
-            let dx = parseFloat(orbit[0]) + event.deltaX * 0.01;
-            let dy = parseFloat(orbit[1]) - event.deltaY * 0.01;
-            modelViewer.setAttribute("camera-orbit", `${dx}rad ${dy}rad auto`);
-        });
-
-        // 모델 확대/축소 (핀치 줌)
-        hammer.get("pinch").set({ enable: true });
-        hammer.on("pinch", (event) => {
-            scale = Math.min(Math.max(0.5, scale * event.scale), 3);
-            modelViewer.setAttribute("scale", `${scale} ${scale} ${scale}`);
+        // AR이 정상적으로 실행되는지 확인
+        modelViewer.addEventListener("ar-status", (event) => {
+            if (event.detail.status === "failed") {
+                alert("AR 실행이 불가능한 환경입니다. 다른 브라우저에서 다시 시도해 보세요.");
+            }
         });
     </script>
 </body>
